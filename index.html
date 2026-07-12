@@ -205,9 +205,8 @@ if(isGrp){md=c.grp.md;td3=c.grp.td||[];st=c.grp.st||c.st||[];
 if(c.grp.notes)h+='<div style="background:var(--greenbg);color:var(--green);padding:8px 12px;border-radius:5px;margin-bottom:8px;font-size:12px;line-height:1.6">💡 团签提示：'+c.grp.notes+'</div>';
 }else{
 var hasOcc=c.occ&&c.occ[occ];
-md=hasOcc?c.occ[occ].md:c.md||[];
-td3=hasOcc?c.occ[occ].td:c.td||[];
-st=c.st||[];
+md=(c.md||[]).slice();td3=(c.td||[]).slice();st=c.st||[];
+if(hasOcc){var omd=c.occ[occ].md||[];for(var oi=0;oi<omd.length;oi++){if(md.indexOf(omd[oi])<0)md.push(omd[oi])}var otd=c.occ[occ].td||[];for(var oj=0;oj<otd.length;oj++){if(td3.indexOf(otd[oj])<0)td3.push(otd[oj])}if(c.occ[occ].st&&c.occ[occ].st.length)st=c.occ[occ].st;}
 if(!hasOcc&&c.occ&&occ!=='employed'){h+='<div class="occ-note" style="display:block">⚠️ 该国暂未细分「'+[{k:'employed',l:'在职'},{k:'student',l:'学生'},{k:'freelancer',l:'自由职业'},{k:'retired',l:'退休'},{k:'unemployed',l:'无业'}].find(function(o){return o.k===occ}).l+'」身份的专属材料，以下为通用清单</div>'}
 if(hasOcc&&c.occ[occ].notes){h+='<div style="background:var(--greenbg);color:var(--green);padding:8px 12px;border-radius:5px;margin-bottom:8px;font-size:12px;line-height:1.6">💡 '+c.occ[occ].notes+'</div>'}
 }
@@ -218,12 +217,15 @@ if(c.p==='sticker'||c.p==='evisa'){
 var baseline=[],has=function(kw){return md.some(function(d){return d.indexOf(kw)>=0})};
 if(!has('申请表'))baseline.push('签证申请表（在线填写+打印+亲笔签名）');
 if(!has('护照')&&!has('passport'))baseline.push('护照原件（有效期6个月以上，至少2页空白页）+ 信息页复印件2份');
-if(!has('照片')&&!has('彩照')&&!has('白底'))baseline.push('近6个月内2寸白底/蓝底彩色证件照（按各国尺寸要求）');
+if(!has('照片')&&!has('彩照')&&!has('白底')&&!has('5×5'))baseline.push('近6个月内2寸彩色证件照（尺寸以该国要求为准：申根3.5×4.5cm/日本4.5×4.5cm/美国5×5cm）');
 if(!has('身份证'))baseline.push('身份证正反面复印件');
 if(!has('户口本'))baseline.push('户口本整本复印件（所有信息页）');
-if(!has('机票')&&!has('航班')&&!has('预订单'))baseline.push('往返机票预订单（英文/中文，不需付款，预订确认单即可）');
-if(!has('酒店')&&!has('住宿')&&!has('预订单'))baseline.push('全程酒店预订单（覆盖每一晚，预订确认单即可）');
-if(!has('行程')&&!has('计划')&&!has('安排'))baseline.push('详细行程单（每日游览安排+交通方式+住宿）');
+if(!has('旧护照')&&!has('过往'))baseline.push('旧护照原件（如有，展示过往出入境记录）');
+if(!has('机票')&&!has('航班')&&!has('预订单'))baseline.push('往返机票预订单（不需要付款，预订确认单即可）');
+if(!has('酒店')&&!has('住宿'))baseline.push('全程酒店预订单（覆盖每一晚，预订确认单即可）');
+if(!has('行程')&&!has('计划')&&!has('安排')&&!has('行程单'))baseline.push('详细行程单（每日游览安排+城市间交通+住宿信息）');
+if(!has('保险')&&!has('医疗'))baseline.push('境外旅行医疗保险（保额要求以该国为准，申根需≥€30,000）');
+if(!has('银行')&&!has('资产')&&!has('资金')&&!has('流水'))baseline.push('近6个月银行流水（余额要求以该国为准）+ 辅助资产证明');
 if(baseline.length){md=baseline.concat(md)}
 }
 h+='<div class="sec"><h3>📎 必需材料（'+md.length+'项）</h3>';
