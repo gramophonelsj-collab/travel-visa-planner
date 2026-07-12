@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>签证数据管理后台 — Admin</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--card2:#f8f9fa;--text:#1f2937;--text2:#6b7280;--border:#e0e0e0;--primary:#2563eb;--plight:#dbeafe;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2}
+@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--card2:#1a2332;--text:#e2e8f0;--text2:#94a3b8;--border:#334155;--primary:#3b82f6;--plight:#1e3a5f;--greenbg:#052e16;--redbg:#450a0a}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hdr{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.hdr h1{font-size:16px}.hdr h1 span{color:var(--primary)}
+.main{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+
+.login-box{max-width:400px;margin:40px auto;background:var(--card);border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:28px}
+.login-box .icon{font-size:40px;margin-bottom:8px;text-align:center}
+.login-box h2{font-size:18px;margin-bottom:4px;text-align:center}
+.login-box .desc{font-size:12px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.6}
+.login-box .fg{margin-bottom:12px}
+.login-box .fg label{display:block;font-size:12px;font-weight:600;margin-bottom:3px}
+.login-box .fg input{width:100%;padding:9px 12px;font-size:13px;font-family:inherit;border:2px solid var(--border);border-radius:6px;background:var(--card);color:var(--text)}
+.login-box .fg input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--plight)}
+.login-box .err{color:var(--red);font-size:12px;margin-bottom:8px}
+.login-box .help{font-size:11px;color:var(--text2);margin-top:8px;line-height:1.6}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 18px;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:.15s;font-family:inherit}
+.btn-p{background:var(--primary);color:#fff;border-color:var(--primary);width:100%}.btn-p:hover{opacity:.88}
+.btn-o{background:var(--card);color:var(--text);border-color:var(--border)}.btn-o:hover{background:var(--card2)}
+.btn-s{padding:5px 12px;font-size:12px}
+.btn-d{background:var(--red);color:#fff;border-color:var(--red)}.btn-d:hover{opacity:.85}
+
+.tbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;justify-content:space-between}
+.tbar h2{font-size:15px}
+.twrap{overflow-x:auto;background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+th{background:var(--card2);padding:8px 10px;text-align:left;font-weight:600;color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}tr:hover td{background:var(--card2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600}
+.badge.free{background:var(--greenbg);color:var(--green)}.badge.evisa{background:#fef3c7;color:#d97706}.badge.sticker{background:var(--redbg);color:var(--red)}.badge.voa{background:var(--plight);color:var(--primary)}
+.status-msg{padding:8px 14px;border-radius:6px;font-size:12px;margin-bottom:10px;display:none}
+.status-msg.ok{background:var(--greenbg);color:var(--green);display:block}
+.status-msg.err{background:var(--redbg);color:var(--red);display:block}
+
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;justify-content:center;align-items:flex-start;padding:20px 16px;overflow-y:auto}
+.ov.on{display:flex}
+.md{background:var(--card);border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.12);width:100%;max-width:620px;padding:22px;max-height:90vh;overflow-y:auto}
+.md h3{font-size:15px;margin-bottom:12px}
+.md .fg{margin-bottom:10px}.md .fg label{display:block;font-size:12px;font-weight:600;margin-bottom:2px}
+.md .fg input,.md .fg select,.md .fg textarea{width:100%;padding:6px 9px;font-size:12px;font-family:inherit;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text)}
+.md .fg input:focus,.md .fg select:focus,.md .fg textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--plight)}
+.md .fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.md .fa{display:flex;gap:6px;justify-content:flex-end;margin-top:14px}
+.md textarea{resize:vertical;min-height:60px;font-size:12px}
+.help{font-size:11px;color:var(--text2);margin-top:2px}
+.flx{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@media(max-width:600px){.md .fr{grid-template-columns:1fr}.hdr h1{font-size:14px}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+    <h1>🔧 <span>签证数据</span> 管理后台</h1>
+    <div class="flx">
+        <span style="font-size:10px;color:var(--text2)" id="loginStatus">未登录</span>
+        <a href="index.html" class="btn btn-o btn-s">← 返回主站</a>
+    </div>
+</header>
+
+<main class="main">
+
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <div class="icon">🔐</div>
+        <h2>连接 GitHub</h2>
+        <p class="desc">需要你的 GitHub Personal Access Token<br>来更新签证数据文件</p>
+        <div class="fg"><label>GitHub 用户名</label><input id="ghUser" placeholder="你的 GitHub 用户名"></div>
+        <div class="fg"><label>Personal Access Token</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
+        <div class="err" id="loginErr"></div>
+        <button class="btn btn-p" onclick="doLogin()">登 录</button>
+        <div class="help">
+            <b>如何获取 Token？</b><br>
+            1. 打开 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)<br>
+            2. 点击 Generate new token (classic)<br>
+            3. 勾选 <b>repo</b> 权限，生成后复制到这里<br>
+            <br>
+            🔗 快捷链接（需要代理/VPN）：<br>
+            <code>github.com/settings/tokens</code><br>
+            <br>
+            💡 Token 只在你的浏览器中保存，不会上传到任何地方
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none">
+    <div id="statusMsg" class="status-msg"></div>
+    <div class="tbar">
+        <h2>📋 签证数据（<span id="totalCount">0</span>条）</h2>
+        <div class="flx">
+            <button class="btn btn-p btn-s" onclick="openEdit()">＋ 添加国家</button>
+            <button class="btn btn-o btn-s" onclick="pullLatest()">🔄 拉取最新</button>
+            <button class="btn btn-o btn-s" onclick="pushData()" id="pushBtn" disabled>📤 提交到 GitHub</button>
+            <button class="btn btn-o btn-s" onclick="location.reload()">退出</button>
+        </div>
+    </div>
+    <div class="twrap">
+        <table><thead><tr>
+            <th>国旗</th><th>国家</th><th>地区</th><th>签证政策</th><th>费用</th><th>时间</th><th>材料</th><th>操作</th>
+        </tr></thead>
+        <tbody id="visaTable"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">点击「🔄 拉取最新」加载数据</td></tr></tbody></table>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text2);text-align:center">
+        💡 编辑后点击「📤 提交到 GitHub」→ 主站用户刷新即可看到更新
+        <span id="dirtyIndicator" style="display:none;color:var(--red);font-weight:600"> ● 有未提交的修改</span>
+    </div>
+</div>
+
+</main>
+
+<!-- EDIT MODAL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeM()"><div class="md" id="md"></div></div>
+
+<script>
+// ===================== CONFIG =====================
+var GITHUB_USER = '';
+var GITHUB_REPO = 'travel-visa-planner';
+var GITHUB_BRANCH = 'main';
+var DATA_PATH = 'visa-data.json';
+var API_BASE = '';
+
+var ghToken = '';
+var visaData = [];
+var originalData = '';
+var isDirty = false;
+var editingId = null;
+
+// ===================== LOGIN =====================
+function doLogin(){
+    var user = document.getElementById('ghUser').value.trim();
+    var token = document.getElementById('ghToken').value.trim();
+    if (!user || !token) { document.getElementById('loginErr').textContent = '请填写用户名和Token'; return; }
+    if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+        document.getElementById('loginErr').textContent = 'Token格式不正确，应以ghp_或github_pat_开头';
+        return;
+    }
+
+    GITHUB_USER = user;
+    ghToken = token;
+    API_BASE = 'https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO;
+
+    // Store in session (never persist to disk)
+    sessionStorage.setItem('admin_gh_user', user);
+    sessionStorage.setItem('admin_gh_token', token);
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('loginStatus').textContent = '✅ ' + user;
+    document.getElementById('loginStatus').style.color = 'var(--green)';
+
+    pullLatest();
+}
+
+// Try auto-login from session
+(function(){
+    var u = sessionStorage.getItem('admin_gh_user');
+    var t = sessionStorage.getItem('admin_gh_token');
+    if (u && t) {
+        document.getElementById('ghUser').value = u;
+        document.getElementById('ghToken').value = t;
+        doLogin();
+    }
+})();
+
+// ===================== GITHUB API =====================
+function ghHeaders(){
+    return {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+    };
+}
+
+function pullLatest(){
+    showStatus('', '');
+    document.getElementById('visaTable').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">⏳ 正在拉取数据…</td></tr>';
+
+    fetch(API_BASE + '/contents/' + DATA_PATH + '?ref=' + GITHUB_BRANCH, { headers: ghHeaders() })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status + ' — 请检查仓库名是否正确，或Token是否有权限'); return r.json(); })
+    .then(function(d){
+        visaData = JSON.parse(atob(d.content.replace(/\s/g, '')));
+        originalData = JSON.stringify(visaData, null, 2);
+        isDirty = false;
+        updateDirty();
+        renderTable();
+        showStatus('✅ 已加载 ' + visaData.length + ' 条签证数据', 'ok');
+    })
+    .catch(function(e){
+        showStatus('❌ 拉取失败: ' + e.message, 'err');
+        document.getElementById('visaTable').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">加载失败，请检查网络和Token</td></tr>';
+    });
+}
+
+function pushData(){
+    if (!isDirty) { showStatus('数据没有修改，无需提交', ''); return; }
+    if (!confirm('确定将修改提交到 GitHub 吗？\n提交后所有用户将看到更新。')) return;
+
+    var content = JSON.stringify(visaData, null, 2);
+    var btn = document.getElementById('pushBtn');
+    btn.disabled = true; btn.textContent = '⏳ 提交中…';
+
+    // First get the current file SHA
+    fetch(API_BASE + '/contents/' + DATA_PATH + '?ref=' + GITHUB_BRANCH, { headers: ghHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(current){
+        var body = {
+            message: 'Update visa data — ' + visaData.length + ' countries (' + new Date().toISOString().slice(0,16).replace('T',' ') + ')',
+            content: btoa(unescape(encodeURIComponent(content))),
+            branch: GITHUB_BRANCH
+        };
+        if (current.sha) body.sha = current.sha;
+
+        return fetch(API_BASE + '/contents/' + DATA_PATH, {
+            method: 'PUT',
+            headers: ghHeaders(),
+            body: JSON.stringify(body)
+        });
+    })
+    .then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(function(result){
+        originalData = JSON.stringify(visaData, null, 2);
+        isDirty = false;
+        updateDirty();
+        showStatus('✅ 提交成功！' + visaData.length + ' 条数据已更新。所有用户刷新主站即可看到。', 'ok');
+    })
+    .catch(function(e){
+        showStatus('❌ 提交失败: ' + e.message, 'err');
+    })
+    .finally(function(){
+        btn.disabled = false; btn.textContent = '📤 提交到 GitHub';
+    });
+}
+
+// ===================== TABLE =====================
+function renderTable(){
+    var rows = '';
+    visaData.forEach(function(d, idx){
+        var count = (d.md||[]).length + (d.td||[]).length;
+        rows += '<tr>'+
+            '<td style="font-size:20px">'+(d.f||'')+'</td>'+
+            '<td><b>'+esc(d.c||'')+'</b></td>'+
+            '<td>'+esc(d.r||'')+'</td>'+
+            '<td><span class="badge '+(d.p||'')+'">'+esc((d.pl||'').slice(0,18))+'</span></td>'+
+            '<td>'+esc((d.fee||'').slice(0,18))+'</td>'+
+            '<td>'+esc((d.time||'').slice(0,15))+'</td>'+
+            '<td>'+count+'项</td>'+
+            '<td style="white-space:nowrap">'+
+                '<button class="btn btn-o btn-s" onclick="openEdit('+idx+')">✏️</button> '+
+                '<button class="btn btn-d btn-s" onclick="deleteEntry('+idx+')">🗑</button>'+
+            '</td></tr>';
+    });
+    document.getElementById('visaTable').innerHTML = rows || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">暂无数据</td></tr>';
+    document.getElementById('totalCount').textContent = visaData.length;
+}
+
+function deleteEntry(idx){
+    if (!confirm('确定删除「'+visaData[idx].c+'」吗？')) return;
+    visaData.splice(idx, 1);
+    markDirty();
+    renderTable();
+}
+
+function markDirty(){
+    isDirty = (JSON.stringify(visaData, null, 2) !== originalData);
+    updateDirty();
+}
+
+function updateDirty(){
+    document.getElementById('dirtyIndicator').style.display = isDirty ? 'inline' : 'none';
+    document.getElementById('pushBtn').disabled = !isDirty;
+    if (isDirty) document.getElementById('pushBtn').textContent = '📤 提交到 GitHub (' + visaData.length + '条)';
+}
+
+// ===================== EDIT MODAL =====================
+function openEdit(idx){
+    var d = (idx !== undefined && idx < visaData.length) ? visaData[idx] : {c:'',f:'',r:'亚洲',p:'sticker',pl:'',fee:'',time:'',md:[],td:[],st:[],notes:''};
+    editingId = idx;
+    var isNew = idx === undefined;
+
+    document.getElementById('md').innerHTML =
+        '<h3>'+(isNew?'➕ 添加新国家':'✏️ 编辑 '+esc(d.c))+'</h3>'+
+        '<div class="fr"><div class="fg"><label>国家/地区名称 *</label><input id="ec" value="'+esc(d.c)+'" placeholder="如：日本"></div><div class="fg"><label>国旗 Emoji</label><input id="ef" value="'+esc(d.f)+'" placeholder="🇯🇵"></div></div>'+
+        '<div class="fr"><div class="fg"><label>所属地区 *</label><input id="er" value="'+esc(d.r)+'" placeholder="亚洲/欧洲/北美洲…"></div><div class="fg"><label>签证类型 *</label><select id="ep"><option value="sticker" '+((d.p||'sticker')==='sticker'?'selected':'')+'>贴纸签 Sticker</option><option value="evisa" '+(d.p==='evisa'?'selected':'')+'>电子签 e-Visa</option><option value="voa" '+(d.p==='voa'?'selected':'')+'>落地签 VOA</option><option value="free" '+(d.p==='free'?'selected':'')+'>免签 Visa Free</option></select></div></div>'+
+        '<div class="fg"><label>签证政策说明</label><input id="epl" value="'+esc(d.pl)+'" placeholder="如：免签（2024年起互免）"></div>'+
+        '<div class="fr"><div class="fg"><label>费用</label><input id="efee" value="'+esc(d.fee)+'" placeholder="如：单次¥200"></div><div class="fg"><label>办理时间</label><input id="etime" value="'+esc(d.time)+'" placeholder="如：5-10个工作日"></div></div>'+
+        '<div class="fg"><label>📎 必需材料（每行一项）</label><textarea id="emd" rows="6" placeholder="护照原件（有效期6个月以上）&#10;签证申请表&#10;…">'+esc((d.md||[]).join('\n'))+'</textarea><div class="help">每行一项，用户可逐项勾选</div></div>'+
+        '<div class="fg"><label>💡 建议材料（每行一项）</label><textarea id="etd" rows="4" placeholder="房产证/车产证&#10;旅行保险">'+esc((d.td||[]).join('\n'))+'</textarea></div>'+
+        '<div class="fg"><label>🔄 办理流程（每行一步）</label><textarea id="est" rows="4" placeholder="确认领区→选择代办机构&#10;准备全套材料&#10;递交使领馆&#10;等待审核">'+esc((d.st||[]).join('\n'))+'</textarea></div>'+
+        '<div class="fg"><label>📝 重要提示（支持&lt;br&gt;换行）</label><textarea id="enotes" rows="4" placeholder="• 提示一<br>• 提示二">'+esc(d.notes||'')+'</textarea></div>'+
+        '<div class="fa"><button class="btn btn-o btn-s" onclick="closeM()">取消</button><button class="btn btn-p btn-s" onclick="saveVisa()">💾 保存</button></div>';
+    document.getElementById('ov').classList.add('on');
+}
+
+function saveVisa(){
+    var data = {
+        id: gv('ec').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''),
+        c: gv('ec'), f: gv('ef'), r: gv('er'), p: gv('ep'), pl: gv('epl'),
+        fee: gv('efee'), time: gv('etime'),
+        md: gv('emd').split('\n').map(function(s){return s.trim()}).filter(Boolean),
+        td: gv('etd').split('\n').map(function(s){return s.trim()}).filter(Boolean),
+        st: gv('est').split('\n').map(function(s){return s.trim()}).filter(Boolean),
+        notes: gv('enotes')
+    };
+    if (!data.c || !data.r) { alert('请填写国家名称和所属地区'); return; }
+
+    if (editingId !== undefined && editingId < visaData.length) {
+        data.id = visaData[editingId].id; // Keep original ID
+        visaData[editingId] = data;
+    } else {
+        // Generate unique ID
+        var baseId = data.id, counter = 1;
+        while (visaData.some(function(v){return v.id === data.id})) {
+            data.id = baseId + '_' + (counter++);
+        }
+        visaData.push(data);
+    }
+
+    closeM();
+    markDirty();
+    renderTable();
+    showStatus('✅ 已修改 ' + data.c + '（点击「📤 提交到 GitHub」保存到线上）', 'ok');
+}
+
+// ===================== HELPERS =====================
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function gv(id){var el=document.getElementById(id);return el?el.value:'';}
+function closeM(){document.getElementById('ov').classList.remove('on');}
+function showStatus(msg, cls){var el=document.getElementById('statusMsg');el.textContent=msg;el.className='status-msg '+(cls||'');if(cls==='ok')setTimeout(function(){el.className='status-msg';el.textContent=''},5000);}
+</script>
+</body>
+</html>
