@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出境签证材料查询 — Travel Planner</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--card2:#f8f9fa;--text:#1f2937;--text2:#6b7280;--border:#e0e0e0;--primary:#2563eb;--plight:#dbeafe;--green:#16a34a;--greenbg:#dcfce7;--amber:#d97706;--amberbg:#fef3c7;--red:#dc2626;--redbg:#fee2e2}
+@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--card2:#1a2332;--text:#e2e8f0;--text2:#94a3b8;--border:#334155;--primary:#3b82f6;--plight:#1e3a5f;--greenbg:#052e16;--amberbg:#422006;--redbg:#450a0a}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hdr{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.hdr .logo{font-size:17px;font-weight:700}.hdr .logo i{color:var(--primary);font-style:normal}
+.hdr .sub{font-size:11px;color:var(--text2)}
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:2px solid var(--border);padding:0 20px;overflow-x:auto}
+.tabs button{padding:11px 16px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;font-family:inherit}
+.tabs button:hover{color:var(--text)}.tabs button.on{color:var(--primary);border-bottom-color:var(--primary)}
+.main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+.panel{display:none}.panel.on{display:block}
+.search-wrap{max-width:500px;margin-bottom:16px}
+.search-wrap input{width:100%;padding:10px 14px;font-size:15px;font-family:inherit;border:2px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)}
+.search-wrap input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--plight)}
+.search-wrap .hint{font-size:12px;color:var(--text2);margin-top:4px;padding-left:4px}
+.grid{display:grid;grid-template-columns:240px 1fr;gap:16px;min-height:400px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.sidebar{background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;max-height:70vh;overflow-y:auto}
+.sidebar .reg{font-size:10px;font-weight:700;color:var(--text2);padding:8px 14px 2px;text-transform:uppercase;letter-spacing:1px}
+.sidebar .item{padding:8px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;border-left:3px solid transparent;transition:.1s}
+.sidebar .item:hover{background:var(--card2)}.sidebar .item.sel{background:var(--plight);border-left-color:var(--primary);font-weight:600;color:var(--primary)}
+.sidebar .item .f{font-size:16px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}.dot.free{background:var(--green)}.dot.evisa{background:var(--amber)}.dot.sticker{background:var(--red)}.dot.voa{background:var(--primary)}
+.detail{background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:22px}
+.detail .empty{text-align:center;padding:50px 20px;color:var(--text2)}.detail .empty .ic{font-size:48px;margin-bottom:8px}
+.dhead{margin-bottom:16px}.dhead .bigf{font-size:44px}
+.dhead h2{font-size:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600}
+.badge.free{background:var(--greenbg);color:var(--green)}.badge.evisa{background:var(--amberbg);color:var(--amber)}.badge.sticker{background:var(--redbg);color:var(--red)}.badge.voa{background:var(--plight);color:var(--primary)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.cards .c{background:var(--card2);border-radius:6px;padding:10px 12px;border:1px solid var(--border)}.cards .c .lbl{font-size:10px;color:var(--text2);text-transform:uppercase}.cards .c .val{font-size:14px;font-weight:700;margin-top:2px}
+.note{background:var(--card2);border-left:3px solid var(--primary);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:14px;font-size:12.5px;line-height:1.8}
+.sec{margin-top:16px}.sec h3{font-size:14px;margin-bottom:8px}
+.doc-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;margin-bottom:3px;cursor:pointer;border:1px solid transparent}
+.doc-item:hover{border-color:var(--border);background:var(--card2)}
+.doc-item input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);flex-shrink:0}
+.doc-item .txt{flex:1;font-size:13px}.doc-item .tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.tag.must{background:var(--redbg);color:var(--red)}.tag.tip{background:var(--card2);color:var(--text2)}
+.doc-item.done .txt{text-decoration:line-through;color:var(--text2)}
+.step{display:flex;gap:10px;margin-bottom:8px}.step .n{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}.step .b{font-size:13px;padding-top:2px}
+.btns{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;font-size:13px;font-weight:500;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;font-family:inherit;text-decoration:none}
+.btn-p{background:var(--primary);color:#fff}.btn-p:hover{opacity:.88}
+.btn-o{background:var(--card);color:var(--text);border-color:var(--border)}.btn-o:hover{background:var(--card2)}.btn-s{padding:4px 10px;font-size:11px}
+.trip-card{background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tc-f{font-size:32px}.tc-i{flex:1;min-width:160px}.tc-i h4{font-size:14px}.tc-i .m{font-size:11px;color:var(--text2)}
+.pbar{width:100%;height:5px;background:var(--border);border-radius:99px;margin-top:5px;overflow:hidden}.pbar .f{height:100%;border-radius:99px;transition:.3s;background:var(--primary)}
+.tc-pct{font-size:22px;font-weight:700;color:var(--primary);text-align:center}.tc-pct .lbl{font-size:10px;color:var(--text2)}
+.tbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px;justify-content:space-between}.tbar .L,.tbar .R{display:flex;gap:6px;flex-wrap:wrap}
+.twrap{overflow-x:auto;background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:550px}
+th{background:var(--card2);padding:8px 10px;text-align:left;font-weight:600;color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--border)}tr:hover td{background:var(--card2)}
+.st{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600}.st.done{background:var(--greenbg);color:var(--green)}.st.prog{background:var(--amberbg);color:var(--amber)}.st.todo{background:var(--card2);color:var(--text2)}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;justify-content:center;align-items:flex-start;padding:30px 16px;overflow-y:auto}.ov.on{display:flex}
+.md{background:var(--card);border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.12);width:100%;max-width:520px;padding:20px}.md h3{font-size:15px;margin-bottom:12px}
+.md .fg{margin-bottom:10px}.md .fg label{display:block;font-size:12px;font-weight:600;margin-bottom:2px}
+.md .fg input,.md .fg select,.md .fg textarea{width:100%;padding:6px 9px;font-size:12px;font-family:inherit;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text)}
+.md .fg input:focus,.md .fg select:focus,.md .fg textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--plight)}
+.md .fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}.md .fa{display:flex;gap:6px;justify-content:flex-end;margin-top:14px}
+.md textarea{resize:vertical;min-height:50px}
+.tl{position:relative;padding-left:18px}.tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.tli{position:relative;margin-bottom:14px;padding-left:18px}.tli::before{content:'';position:absolute;left:-16px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--card)}
+.tli.v::before{background:#8b5cf6;box-shadow:0 0 0 2px #8b5cf6}.tli.f::before{background:#3b82f6;box-shadow:0 0 0 2px #3b82f6}.tli.h::before{background:#f59e0b;box-shadow:0 0 0 2px #f59e0b}
+.tld{font-size:10px;color:var(--text2);font-weight:600}.tlc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:8px 11px;margin-top:2px}
+.tlc .t{font-weight:600;font-size:12px}.tlc .d{font-size:10px;color:var(--text2)}
+.flx{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.emp{text-align:center;padding:36px 16px;color:var(--text2)}.emp .ic{font-size:36px;margin-bottom:6px}
+@media(max-width:700px){.md .fr{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+@media print{body{background:#fff}.hdr,.tabs,.tbar,.btn,.ov,.btns,button{display:none!important}.panel{display:block!important;margin-bottom:18px}.main{padding:0;max-width:100%}.panel::before{content:attr(data-title);display:block;font-size:16px;font-weight:700;margin-bottom:8px;border-bottom:2px solid #000;padding-bottom:4px}.search-wrap,.sidebar{display:none}.grid{grid-template-columns:1fr}.twrap{box-shadow:none}@page{margin:10mm}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="logo">🌍 <i>出境签证</i> 材料查询</div><span class="sub">🇨🇳 中国护照 · 内含34国签证数据 · 数据仅供参考</span></header>
+<nav class="tabs" id="tabs">
+    <button class="on" data-p="visa">🌍 签证查询</button><button data-p="trips">📋 我的行程</button><button data-p="flights">🛫 机票比选</button><button data-p="hotels">🏨 酒店比选</button><button data-p="timeline">📅 行程总览</button>
+</nav>
+<main class="main">
+
+<section class="panel on" id="p-visa" data-title="签证查询">
+    <div class="search-wrap"><input type="text" id="sIn" placeholder="输入目的地，如：日本、美国、申根…" oninput="doSearch()" onkeydown="if(event.key==='Enter')searchEnter()" autocomplete="off"><div class="hint" id="sHint"></div></div>
+    <div class="grid">
+        <div class="sidebar" id="sBar"></div>
+        <div class="detail" id="detail"><div class="empty"><div class="ic">🌍</div><p style="font-size:15px;font-weight:600;margin-bottom:4px">选择或搜索目的地</p><p style="font-size:13px">左侧选择国家，或在上方搜索框输入</p></div></div>
+    </div>
+</section>
+
+<section class="panel" id="p-trips" data-title="我的行程">
+    <div class="tbar"><div class="L"><button class="btn btn-o btn-s" onclick="exp()">📥 导出备份</button><button class="btn btn-o btn-s" onclick="document.getElementById('imp').click()">📤 导入恢复</button><input type="file" id="imp" accept=".json" style="display:none" onchange="imp(event)"></div></div>
+    <div id="tWrap"></div>
+</section>
+
+<section class="panel" id="p-flights" data-title="机票比选">
+    <div class="tbar"><div class="L"><button class="btn btn-p btn-s" onclick="openF()">＋ 添加航班</button></div></div>
+    <div class="twrap"><table><thead><tr><th>航司</th><th>航班号</th><th>出发</th><th>到达</th><th>出发</th><th>到达</th><th>中转</th><th>价格</th><th>行李</th><th>状态</th><th>操作</th></tr></thead><tbody id="ftb"></tbody></table></div>
+</section>
+
+<section class="panel" id="p-hotels" data-title="酒店比选">
+    <div class="tbar"><div class="L"><button class="btn btn-p btn-s" onclick="openH()">＋ 添加酒店</button></div></div>
+    <div class="twrap"><table><thead><tr><th>酒店</th><th>城市</th><th>入住</th><th>退房</th><th>价格/晚</th><th>评分</th><th>取消</th><th>状态</th><th>备注</th><th>操作</th></tr></thead><tbody id="htb"></tbody></table></div>
+</section>
+
+<section class="panel" id="p-timeline" data-title="行程总览">
+    <div class="tbar"><button class="btn btn-o btn-s" onclick="rTl()">🔄 刷新</button></div><div id="tlW"></div>
+</section>
+
+</main>
+<div class="ov" id="ov" onclick="if(event.target===this)closeM()"><div class="md" id="md"></div></div>
+
+<script>
+// ===================== VISA DATABASE (34 countries) =====================
+var V=[{id:"jp",c:"日本",f:"🇯🇵",r:"亚洲",p:"sticker",pl:"贴纸签证（需通过指定代办机构）",fee:"单次¥200，多次¥400-800",time:"5-10个工作日",md:["护照原件（有效期6个月以上，至少2页空白）","签证申请表（双面打印，手写签名）","近6个月4.5×4.5cm白底彩照2张","身份证正反面复印件","户口本整本复印件","在职证明原件（盖公章，含收入、职位、准假信息）","营业执照副本复印件（盖公章）","近6个月银行流水（余额建议5万以上）","机票预订单（往返）","酒店预订单（全程）","详细行程单（每日安排）"],td:["房产证/车产证复印件（辅助资产证明）","亲属关系证明（探亲签证）","日方邀请函+担保材料（商务/探亲）"],st:["确认领区（北京/上海/广州/沈阳/重庆/青岛/大连）→选择指定代办机构","准备全套纸质材料，交代办机构审核","代办机构递交使领馆","等待审核（可能电调）","出签后取回护照"],notes:"• 日本签证须通过指定代办机构递交，不接受个人直接申请<br>• 单次签证有效期3个月，停留最长15天<br>• 三年/五年多次需较高收入门槛（年收入20万/50万以上）"},
+{id:"kr",c:"韩国",f:"🇰🇷",r:"亚洲",p:"sticker",pl:"贴纸签证",fee:"单次¥280-420，多次¥600-800",time:"5-10个工作日",md:["护照原件（有效期6个月以上）","签证申请表","近6个月3.5×4.5cm白底彩照1张","身份证原件+复印件","户口本整本复印件","在职证明+营业执照副本复印件（盖公章）","近6个月银行流水（余额建议3万以上）","机票+酒店预订单","行程计划书"],td:["社保缴纳记录","学历证明（本科以上可申请5年/10年多次）","OECD国家出境记录"],st:["确认领区→准备材料","通过韩国驻华使领馆官网预约或通过指定旅行社递交","递交材料、录入指纹","等待审核","出签"],notes:"• 济州岛免签30天（仅限直飞济州）<br>• 五年多次需本科学历或年收入6万以上"},
+{id:"th",c:"泰国",f:"🇹🇭",r:"亚洲",p:"free",pl:"免签（2024年3月起永久免签）",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票订单（备查）","酒店预订单（备查）","每人携带至少10000泰铢等值现金（约¥2000，抽查）"],td:["旅行保险","出入境卡"],st:["确保护照有效期>6个月","预订往返机票","入境时出示护照+登机牌即可"],notes:"• 2024年3月1日起中泰互免签证，停留最长30天<br>• 180天内累计停留不超过90天"},
+{id:"sg",c:"新加坡",f:"🇸🇬",r:"亚洲",p:"free",pl:"免签（2024年2月起互免）",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","SG Arrival Card电子入境卡（入境前3天内网上填写）","返程/联程机票","酒店预订单"],td:["旅行保险"],st:["出行前3天内登录ICA官网填写SG Arrival Card","保存电子入境卡确认页面或截图","抵达后自助通关或人工通道入境"],notes:"• 2024年2月9日起中新互免签证，停留最长30天<br>• 务必提前填写SG Arrival Card，否则无法入境<br>• 电子入境卡免费，谨防钓鱼网站收费"},
+{id:"my",c:"马来西亚",f:"🇲🇾",r:"亚洲",p:"free",pl:"免签（至2026年底）",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","MDAC电子入境卡（入境前3天内填写）","返程机票","酒店预订单","足够旅费证明"],td:["指纹录入（入境时）"],st:["出行前3天内填写MDAC电子入境卡","打印或保存确认页","入境时录指纹"],notes:"• 免签停留最长30天<br>• 必须提前填写MDAC"},
+{id:"vn",c:"越南",f:"🇻🇳",r:"亚洲",p:"evisa",pl:"电子签（90天有效）",fee:"约$25（~¥180）",time:"3-5个工作日",md:["护照首页扫描件（有效期6个月以上）","白底彩色证件照电子版","电子签证批准函打印件"],td:["返程机票","酒店预订"],st:["登录越南移民局官网 evisa.xuatnhapcanh.gov.vn 申请","上传护照+照片，填写信息","在线支付","下载电子签证批准函","打印随身携带，入境时出示"],notes:"• 电子签可停留最长90天，单次/多次可选<br>• 富国岛免签30天（仅限直飞富国岛）"},
+{id:"id",c:"印度尼西亚",f:"🇮🇩",r:"亚洲",p:"voa",pl:"落地签/电子落地签",fee:"落地签500,000印尼盾（约¥230）",time:"落地即办/电子签1-3天",md:["护照原件（有效期6个月以上）","返程机票","酒店预订单"],td:["电子落地签提前申请可免排队"],st:["抵达印尼机场后前往VOA柜台","缴费（支持印尼盾、美元、Visa/Mastercard）","凭收据通过边检"],notes:"• 落地签停留30天，可延期一次（30天）<br>• 建议提前在线申请电子落地签(e-VOA): molina.imigrasi.go.id"},
+{id:"mv",c:"马尔代夫",f:"🇲🇻",r:"亚洲",p:"free",pl:"免签（免费落地签）",fee:"免费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票","酒店确认单","足够旅费证明"],td:["旅行保险"],st:["出发前在线填写Traveller Declaration","保存二维码","抵达后出示护照+二维码入境"],notes:"• 免签停留30天<br>• 禁止携带酒精、猪肉制品入境"},
+{id:"ae",c:"阿联酋（迪拜）",f:"🇦🇪",r:"亚洲",p:"free",pl:"免签",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票（备查）"],td:["酒店预订","旅行保险"],st:["确保护照有效期>6个月","抵达后直接入境，边检盖章"],notes:"• 免签停留30天，可延期一次30天<br>• 护照上如有以色列签证/入境章可能被拒绝入境"},
+{id:"in",c:"印度",f:"🇮🇳",r:"亚洲",p:"evisa",pl:"电子签",fee:"$25-80不等",time:"3-5个工作日",md:["护照首页扫描件（有效期6个月以上+2页空白）","白底彩照电子版5×5cm","返程机票","酒店预订或邀请函"],td:["旧护照扫描件"],st:["登录 indianvisaonline.gov.in 申请","选择e-Tourist Visa","上传材料并支付","下载ETA打印","入境时出示ETA+护照"],notes:"• 电子签有效期30天/1年/5年可选<br>• 部分口岸不适用电子签"},
+{id:"tr",c:"土耳其",f:"🇹🇷",r:"亚洲",p:"evisa",pl:"电子签",fee:"$60（约¥430）",time:"即时-24小时",md:["护照原件（有效期6个月以上）","电子签证打印件"],td:["酒店预订+机票（备查）"],st:["登录 evisa.gov.tr 填写信息","在线支付$60","下载电子签证PDF并打印","入境时出示"],notes:"• 电子签单次入境，停留30天<br>• 有效期180天"},
+{id:"kh",c:"柬埔寨",f:"🇰🇭",r:"亚洲",p:"evisa",pl:"电子签/落地签",fee:"电子签$36/落地签$30",time:"电子签3工作日/落地即办",md:["护照原件（有效期6个月以上）","证件照（落地签需1张2寸白底）","现金$30/$36"],td:[],st:["电子签：evisa.gov.kh申请→支付","落地签：抵达后填表+交钱+照片"],notes:"• 电子签和落地签均可停留30天"},
+{id:"lk",c:"斯里兰卡",f:"🇱🇰",r:"亚洲",p:"evisa",pl:"电子签（ETA）",fee:"$20-50",time:"1-3个工作日",md:["护照首页扫描件（有效期6个月以上）","ETA批准函打印件"],td:["返程机票"],st:["eta.gov.lk在线申请","填写信息","在线支付","获批后打印ETA携带入境"],notes:"• 停留30天，可延期"},
+{id:"ph",c:"菲律宾",f:"🇵🇭",r:"亚洲",p:"sticker",pl:"贴纸签证",fee:"单次¥190，多次¥380-760",time:"5-7个工作日",md:["护照原件（有效期6个月以上）","签证申请表","近6个月2寸白底照","在职证明+营业执照","银行流水（余额≥2万）","往返机票","酒店预订"],td:["社保证明"],st:["通过菲律宾驻华使领馆或指定旅行社递交","准备材料","递交→审核→出签"],notes:"• 持有有效美/日/澳/申根签可免签入境7+7天"},
+{id:"la",c:"老挝",f:"🇱🇦",r:"亚洲",p:"voa",pl:"落地签",fee:"$20-40（约¥140-280）",time:"落地即办",md:["护照原件（有效期6个月以上）","2寸白底或蓝底照片1张","落地签申请表（现场填）"],td:["现金（美元/基普）"],st:["抵达口岸后填表","交照片+缴费","等待发签证贴纸"],notes:"• 停留30天"},
+{id:"np",c:"尼泊尔",f:"🇳🇵",r:"亚洲",p:"voa",pl:"免费落地签",fee:"免费（15天）/$30（30天）/$125（90天）",time:"落地即办",md:["护照原件（有效期6个月以上）","1张2寸照片（建议白底）"],td:["现金"],st:["抵达加德满都机场后在自助机器填表","打印凭条","排队缴费（15天免费）"],notes:"• 免费落地签15天，每年可多次<br>• 对中国公民很友好"},
+{id:"kz",c:"哈萨克斯坦",f:"🇰🇿",r:"亚洲",p:"free",pl:"免签",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）"],td:[],st:["直接入境"],notes:"• 免签停留30天<br>• 2023年起互免"},
+{id:"uz",c:"乌兹别克斯坦",f:"🇺🇿",r:"亚洲",p:"free",pl:"免签（10天）",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票"],td:["超10天可申请电子签"],st:["确保护照有效期→直接入境"],notes:"• 免签停留10天（乘飞机入境）<br>• 古城撒马尔罕、布哈拉值得一游"},
+{id:"ge",c:"格鲁吉亚",f:"🇬🇪",r:"亚洲",p:"free",pl:"免签",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票（备查）","酒店预订（备查）"],td:["旅行保险"],st:["确保护照有效期","直接入境"],notes:"• 免签停留30天<br>• 对中国公民极为友好"},
+{id:"az",c:"阿塞拜疆",f:"🇦🇿",r:"亚洲",p:"evisa",pl:"电子签（ASAN Visa）",fee:"$20（约¥145）",time:"3个工作日（加急3小时$50）",md:["护照扫描件（有效期6个月以上）","电子签证打印件"],td:[],st:["evisa.gov.az在线申请","填写信息","在线支付$20","下载电子签证并打印"],notes:"• 停留30天<br>• ASAN系统简单快捷"},
+{id:"schengen",c:"申根区（法/德/意/西/瑞等29国）",f:"🇪🇺",r:"欧洲",p:"sticker",pl:"申根贴纸签证",fee:"成人€90（约¥700）",time:"15-30个自然日",md:["护照原件（有效期在离境后>3个月，至少2页空白）","申根签证申请表（在线填写打印）","近6个月3.5×4.5cm白底彩照2张","身份证正反面复印件","户口本整本复印件","英文在职证明原件（盖公章+签字，注明职位、收入、假期、回国保证）","营业执照副本复印件（盖公章）","近6个月银行流水（余额建议5万以上）","往返机票预订单","全程酒店预订单","详细英文行程单","境外旅行医疗保险（保额≥€30,000）","签证申请信/Cover Letter"],td:["房产/车产证明","结婚证（已婚者）","旧护照上的过往签证记录","工资流水+税单"],st:["确定主要目的地国家（停留天数最多的申根国）","在对应国家签证中心官网预约","准备全套材料（翻译公证如需要）","按预约时间递交材料+录指纹","等待审核（期间可能有电调）","出签后仔细核对签证页信息"],notes:"• 2024年起签证费涨至€90<br>• 最早可提前6个月申请<br>• 申根区包括29国，持申根签可自由通行<br>• 主要目的地原则：在哪个国家停留最久就申请哪个国家"},
+{id:"uk",c:"英国",f:"🇬🇧",r:"欧洲",p:"sticker",pl:"贴纸签证",fee:"6个月标准¥1300",time:"15-20个工作日",md:["护照原件（有效期6个月以上）","在线申请表打印件（带GWF编号）","近6个月白底4.5×3.5cm彩照","英文在职证明（盖公章+签字）","营业执照副本复印件（盖公章）","近6个月银行流水（余额建议5万以上）","往返机票预订单","全程住宿预订","英文行程单"],td:["房产/车产证明","结婚证","过往旅行记录"],st:["GOV.UK在线填表+缴费+预约","上传所有支持文件","按预约去签证中心录指纹+拍照","等待审理","出签后护照快递或自取"],notes:"• 英国非申根，需单独办签证<br>• 标准访问签证停留最长6个月"},
+{id:"ru",c:"俄罗斯",f:"🇷🇺",r:"欧洲",p:"evisa",pl:"电子签（e-Visa）",fee:"$52（约¥380）",time:"4-6个自然日",md:["护照首页扫描件（有效期6个月以上）","白底彩照电子版3.5×4.5cm","医疗保险（覆盖俄罗斯）"],td:["邀请函（商务签需要）"],st:["登录evisa.kdmid.ru在线申请","填写信息上传材料","在线支付","下载电子签PDF，打印携带"],notes:"• 电子签单次入境，停留≤16天<br>• 需在入境前4-40天申请"},
+{id:"al",c:"阿尔巴尼亚",f:"🇦🇱",r:"欧洲",p:"free",pl:"免签",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）"],td:[],st:["直接入境"],notes:"• 免签停留90天<br>• 对中国公民全年免签"},
+{id:"rs",c:"塞尔维亚",f:"🇷🇸",r:"欧洲",p:"free",pl:"互免签证",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票（备查）"],td:[],st:["直接入境"],notes:"• 互免签证，停留30天<br>• 欧洲第一个对中国免签的国家"},
+{id:"us",c:"美国",f:"🇺🇸",r:"北美洲",p:"sticker",pl:"贴纸签证（需面签）",fee:"$185（约¥1350）",time:"面签后5-10个工作日（预约等待1-6个月不等）",md:["护照原件（有效期离境后>6个月）","DS-160确认页打印件","面签预约确认页","近6个月5×5cm白底彩照1张（不能戴眼镜）","身份证原件","户口本原件","英文在职证明（盖公章+签字）","营业执照副本复印件（盖公章）","近6个月银行流水（余额充足）","工资流水+税单（如有）","房产证/车产证原件","结婚证（已婚者）","旅行计划（英文）","旧护照（如有过往签证记录）"],td:["学历证书","全家福照片（证明国内约束力）","名片"],st:["在线填写DS-160表（约1-2小时）","缴纳签证费","预约面签时间","按预约时间前往使领馆面签（录指纹+面试）","面签通过后护照快递或自取"],notes:"• 面签是决定性环节，回答要自信、真实、简洁<br>• 核心原则：证明你有充分的回国约束力<br>• B1/B2签通常给10年多次，每次停留≤6个月<br>• EVUS登记：持10年签赴美前需EVUS登记（$8）"},
+{id:"ca",c:"加拿大",f:"🇨🇦",r:"北美洲",p:"sticker",pl:"贴纸签证（录指纹）",fee:"CAN$100+指纹CAN$85（约¥1000）",time:"2-8周",md:["护照原件（有效期离境后>6个月）","近6个月3.5×4.5cm白底彩照2张","英文在职证明（盖公章+签字）","营业执照副本复印件（盖公章）","近6个月银行流水（余额建议10万以上）","近6个月工资卡流水","房产证/车产证","旅行行程单","往返机票预订单","酒店预订单"],td:["税单/社保记录","结婚证","旧护照签证记录"],st:["IRCC官网在线申请或通过签证中心","在线填表+缴费+预约录指纹","签证中心录指纹+拍照","等待审理","邮寄护照贴签/自取"],notes:"• 签证有效期通常给到护照有效期（最长10年）<br>• 持有有效美国签证可简化材料（CAN+通道）"},
+{id:"mx",c:"墨西哥",f:"🇲🇽",r:"北美洲",p:"free",pl:"有条件免签",fee:"免费",time:"无需办理",md:["护照原件（有效期6个月以上）","持有有效且已使用过的美国/申根/英/日/加签证","酒店预订","返程机票"],td:[],st:["确认持有符合条件的有效签证","直接入境","边检查验签证+护照"],notes:"• 持有效美签/申根签/英签/日签/加签可免签入境<br>• 停留最长180天"},
+{id:"au",c:"澳大利亚",f:"🇦🇺",r:"大洋洲",p:"evisa",pl:"电子签（Visitor 600）",fee:"AUD$195（约¥930）",time:"1-4周",md:["护照首页扫描件（有效期6个月以上）","电子证件照","英文在职证明（盖公章+签字）","营业执照副本复印件","近6个月银行流水（余额建议5万以上）","往返机票预订单","酒店预订/邀请函","旅行行程安排"],td:["房产证","工资流水","旧护照签证记录"],st:["ImmiAccount在线申请Visitor(subclass 600)","上传所有材料电子版","在线缴费","等待审核（可能电话调查）","收到电子签证确认函"],notes:"• 电子签，护照上无贴纸<br>• 停留3/6/12个月可选<br>• 建议提前1-2个月申请"},
+{id:"nz",c:"新西兰",f:"🇳🇿",r:"大洋洲",p:"evisa",pl:"电子签（Visitor Visa）",fee:"NZ$341（约¥1500）",time:"3-6周",md:["护照原件/扫描件（有效期离境后>3个月）","电子证件照","英文在职证明+准假信","近6个月银行流水","往返机票","旅行计划"],td:["房产证"],st:["Immigration NZ在线申请→上传材料→缴费→等待审核"],notes:"• 中国护照需申请Visitor Visa"},
+{id:"eg",c:"埃及",f:"🇪🇬",r:"非洲",p:"voa",pl:"落地签",fee:"$25（约¥180）",time:"落地即办",md:["护照原件（有效期6个月以上）","$25美金现金","酒店预订（备查）","返程机票（备查）"],td:["邀请函（商务目的）"],st:["抵达埃及机场后前往Bank窗口","缴纳$25购买签证贴纸","将贴纸贴在护照上","排队过关"],notes:"• 停留30天<br>• 建议准备好25美金零钱"},
+{id:"ma",c:"摩洛哥",f:"🇲🇦",r:"非洲",p:"free",pl:"免签",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","酒店预订（备查）","返程机票（备查）"],td:[],st:["确保护照有效期>6个月","直接入境"],notes:"• 免签停留90天<br>• 自2016年起对中国公民免签"},
+{id:"za",c:"南非",f:"🇿🇦",r:"非洲",p:"evisa",pl:"电子签",fee:"约¥500",time:"5-10个工作日",md:["护照扫描件（有效期6个月以上+2页空白）","证件照电子版","往返机票","酒店预订","近3个月银行流水（余额≥3万）","在职证明"],td:["黄热病疫苗证书（如从疫区入境）"],st:["在线申请电子签证","上传材料","缴费","等待审批","打印电子签证"],notes:"• 持申根/英美签证可简化"},
+{id:"ke",c:"肯尼亚",f:"🇰🇪",r:"非洲",p:"evisa",pl:"电子签（eTA）",fee:"$30（约¥215）",time:"3-5个工作日",md:["护照扫描件（有效期6个月以上）","证件照电子版","往返机票","酒店预订/行程"],td:["黄热病疫苗证书"],st:["etakenya.go.ke在线申请","填写信息→上传材料→支付","下载eTA打印"],notes:"• 2024年起实行免签但需eTA<br>• 停留90天"},
+{id:"br",c:"巴西",f:"🇧🇷",r:"南美洲",p:"free",pl:"互免签证（2024年起）",fee:"免签证费",time:"无需办理",md:["护照原件（有效期6个月以上）","返程机票（备查）","酒店预订（备查）"],td:["黄热病疫苗证书（建议）"],st:["确保护照有效期>6个月","直接入境"],notes:"• 2024年2月19日生效，停留最长30天，可延期30天"},
+{id:"ar",c:"阿根廷",f:"🇦🇷",r:"南美洲",p:"free",pl:"有条件免签",fee:"AVE$200（约¥1450）",time:"即时",md:["护照原件（有效期6个月以上）","持有有效美国B2签证或申根签证（已使用过）","电子旅行许可AVE申请"],td:["往返机票","酒店预订"],st:["确认持有有效美签或申根签","在线申请阿根廷AVE","缴费$200","批准后打印AVE","入境出示"],notes:"• AVE有效期3个月，多次入境<br>• 停留最长90天"}];
+
+var M={};for(var i=0;i<V.length;i++){M[V[i].id]=V[i]}
+var U={trips:{},flights:[],hotels:[]};
+(function(){try{var r=localStorage.getItem('tv6');if(r)U=JSON.parse(r)}catch(e){}})();
+function su(){localStorage.setItem('tv6',JSON.stringify(U))}
+var sid=null;
+
+function doSearch(){
+    var q=document.getElementById('sIn').value.trim(),mt=[];
+    if(q){var ql=q.toLowerCase();for(var i=0;i<V.length;i++){var v=V[i];if(v.c.toLowerCase().indexOf(ql)>=0||v.id.indexOf(ql)>=0||(v.r&&v.r.toLowerCase().indexOf(ql)>=0))mt.push(v.id)}}
+    else{for(var i=0;i<V.length;i++)mt.push(V[i].id)}
+    var h=document.getElementById('sHint');
+    if(q&&mt.length)h.innerHTML='找到 <b>'+mt.length+'</b> 个目的地·按 <kbd>Enter ↵</kbd> 查看第一个';
+    else if(q&&!mt.length)h.innerHTML='😕 未找到';
+    else h.innerHTML='';
+    if(q&&mt.length===1){if(sid!==mt[0]){sid=mt[0];sd(sid)}}
+    rs(mt);
+}
+function searchEnter(){var q=document.getElementById('sIn').value.trim();if(!q)return;var ql=q.toLowerCase();for(var i=0;i<V.length;i++){var v=V[i];if(v.c.toLowerCase().indexOf(ql)>=0||v.id.indexOf(ql)>=0||(v.r&&v.r.toLowerCase().indexOf(ql)>=0)){ck(v.id);return}}}
+function rs(mt){var r={};for(var i=0;i<mt.length;i++){var v=M[mt[i]];if(!v)continue;if(!r[v.r])r[v.r]=[];r[v.r].push(v)}var ks=Object.keys(r);if(!ks.length){document.getElementById('sBar').innerHTML='<div style="padding:16px;color:var(--text2)">无匹配</div>';return}var h='';for(var x=0;x<ks.length;x++){var reg=ks[x],lst=r[reg];h+='<div class="reg">'+reg+' ('+lst.length+')</div>';for(var j=0;j<lst.length;j++){var c=lst[j];h+='<div class="item'+(c.id===sid?' sel':'')+'" onclick="ck(\''+c.id+'\')"><span class="f">'+c.f+'</span><span>'+s(c.c)+'</span><span class="dot '+c.p+'" style="margin-left:auto" title="'+s(c.pl)+'"></span></div>'}}document.getElementById('sBar').innerHTML=h}
+function ck(id){sid=id;var q=document.getElementById('sIn').value.trim(),mt=[];if(q){var ql=q.toLowerCase();for(var i=0;i<V.length;i++){var v=V[i];if(v.c.toLowerCase().indexOf(ql)>=0||v.id.indexOf(ql)>=0||(v.r&&v.r.toLowerCase().indexOf(ql)>=0))mt.push(v.id)}}else{for(var i=0;i<V.length;i++)mt.push(V[i].id)}rs(mt);sd(id)}
+function sd(id){var c=M[id];if(!c)return;var td=U.trips[id]||{},sd2=td.checkedDocs||[],vtl='贴纸签 / Sticker Visa';if(c.pl.indexOf('免签')>=0)vtl='免签 / Visa Free';else if(c.pl.indexOf('落地')>=0)vtl='落地签 / VOA';else if(c.pl.indexOf('电子')>=0)vtl='电子签 / e-Visa';var h='<div class="dhead"><div class="bigf">'+c.f+'</div><h2>'+s(c.c)+' <span class="badge '+c.p+'">'+s(c.pl)+'</span></h2></div>';h+='<div class="cards"><div class="c"><div class="lbl">签证类型</div><div class="val">'+vtl+'</div></div><div class="c"><div class="lbl">费用</div><div class="val" style="font-size:12px">'+s(c.fee||'')+'</div></div><div class="c"><div class="lbl">办理时间</div><div class="val" style="font-size:12px">'+s(c.time||'')+'</div></div><div class="c"><div class="lbl">🇨🇳 中国护照</div><div class="val" style="color:var(--green)">'+(c.p==='free'?'可前往 ✓':'需办理签证')+'</div></div></div>';if(c.notes)h+='<div class="note">'+c.notes+'</div>';var md=c.md||[];h+='<div class="sec"><h3>📎 必需材料（'+md.length+'项）</h3>';for(var i=0;i<md.length;i++){var k='m'+i,chk=sd2.indexOf(k)>=0;h+='<div class="doc-item'+(chk?' done':'')+'" onclick="td(\''+id+'\',\''+k+'\')"><input type="checkbox" '+(chk?'checked':'')+' onclick="event.stopPropagation();td(\''+id+'\',\''+k+'\')"><span class="txt">'+s(md[i])+'</span><span class="tag must">必需</span></div>'}h+='</div>';var td3=c.td||[];if(td3.length){h+='<div class="sec"><h3>💡 建议材料（'+td3.length+'项）</h3>';for(var j=0;j<td3.length;j++){var tk='t'+j,tchk=sd2.indexOf(tk)>=0;h+='<div class="doc-item'+(tchk?' done':'')+'" onclick="td(\''+id+'\',\''+tk+'\')"><input type="checkbox" '+(tchk?'checked':'')+' onclick="event.stopPropagation();td(\''+id+'\',\''+tk+'\')"><span class="txt">'+s(td3[j])+'</span><span class="tag tip">建议</span></div>'}h+='</div>'}var st=c.st||[];if(st.length){h+='<div class="sec"><h3>🔄 办理流程</h3>';for(var m=0;m<st.length;m++){h+='<div class="step"><div class="n">'+(m+1)+'</div><div class="b">'+s(st[m])+'</div></div>'}h+='</div>'}h+='<div class="btns"><button class="btn btn-p" onclick="at(\''+id+'\')">'+(U.trips[id]?'🔄 更新我的行程':'➕ 加入我的行程')+'</button><button class="btn btn-o btn-s" onclick="window.print()">🖨 打印</button></div>';document.getElementById('detail').innerHTML=h}
+function td(cid,key){if(!U.trips[cid])U.trips[cid]={checkedDocs:[],notes:''};var a=U.trips[cid].checkedDocs,i=a.indexOf(key);if(i>=0)a.splice(i,1);else a.push(key);su();sd(cid)}
+function at(id){if(!U.trips[id])U.trips[id]={checkedDocs:[],notes:''};su();st('trips')}
+function rt(){var ids=Object.keys(U.trips),w=document.getElementById('tWrap');if(!ids.length){w.innerHTML='<div class="emp"><div class="ic">📋</div><p>还没有添加目的地<br>去「🌍 签证查询」选国家并点击「加入我的行程」</p></div>';return}var h='';for(var i=0;i<ids.length;i++){var id=ids[i],c=M[id];if(!c)continue;var td2=U.trips[id],total=(c.md||[]).length+(c.td||[]).length,checked=(td2.checkedDocs||[]).length,pct=total?Math.round(checked/total*100):(c.p==='free'?100:0);h+='<div class="trip-card"><div class="tc-f">'+c.f+'</div><div class="tc-i"><h4>'+c.c+' <span class="badge '+c.p+'" style="font-size:9px">'+s(c.pl)+'</span></h4><div class="m">'+s(c.fee||'')+' · '+s(c.time||'')+'</div><div class="pbar"><div class="f" style="width:'+pct+'%;'+(pct===100?'background:var(--green)':'')+'"></div></div></div><div class="tc-pct">'+pct+'%<div class="lbl">'+checked+'/'+total+'</div></div><div class="flx"><button class="btn btn-o btn-s" onclick="st(\'visa\');sid=\''+id+'\';sd(\''+id+'\')">查看</button><button class="btn btn-o btn-s" style="color:var(--red)" onclick="if(confirm(\'移除？\')){delete U.trips[\''+id+'\'];su();rt();}">移除</button></div></div>'}w.innerHTML=h}
+function openF(d){d=d||{};document.getElementById('md').innerHTML='<h3>🛫 '+(d.id?'编辑':'添加')+'航班</h3><div class="fr"><div class="fg"><label>航司 *</label><input id="fa" value="'+s(d.airline||'')+'" placeholder="全日空 NH"></div><div class="fg"><label>航班号</label><input id="ff" value="'+s(d.flightNo||'')+'" placeholder="NH960"></div></div><div class="fr"><div class="fg"><label>出发 *</label><input id="ffr" value="'+s(d.from||'')+'" placeholder="上海 PVG"></div><div class="fg"><label>到达 *</label><input id="fto" value="'+s(d.to||'')+'" placeholder="东京 HND"></div></div><div class="fr"><div class="fg"><label>出发时间</label><input type="datetime-local" id="fdt" value="'+s(d.departDate||'')+'"></div><div class="fg"><label>到达时间</label><input type="datetime-local" id="fat" value="'+s(d.arriveDate||'')+'"></div></div><div class="fr"><div class="fg"><label>中转</label><input id="fl" value="'+s(d.layover||'')+'" placeholder="直飞"></div><div class="fg"><label>价格(元)</label><input type="number" id="fp" value="'+s(d.price||'')+'" placeholder="3280"></div></div><div class="fr"><div class="fg"><label>行李</label><input id="fb" value="'+s(d.baggage||'')+'" placeholder="2×23kg"></div><div class="fg"><label>状态</label><select id="fs"><option value="todo" '+(d.status!=='done'&&d.status!=='progress'?'selected':'')+'>待预订</option><option value="progress" '+(d.status==='progress'?'selected':'')+'>比选中</option><option value="done" '+(d.status==='done'?'selected':'')+'>已出票</option></select></div></div><div class="fg"><label>备注</label><textarea id="fn">'+s(d.notes||'')+'</textarea></div><div class="fa"><button class="btn btn-o btn-s" onclick="closeM()">取消</button><button class="btn btn-p btn-s" onclick="sF(\''+(d.id||'')+'\')">保存</button></div>';document.getElementById('ov').classList.add('on')}
+function sF(eid){var it={id:eid||gi(),airline:gv('fa'),flightNo:gv('ff'),from:gv('ffr'),to:gv('fto'),departDate:gv('fdt'),arriveDate:gv('fat'),layover:gv('fl'),price:gv('fp'),baggage:gv('fb'),status:gv('fs'),notes:gv('fn')};if(!it.airline||!it.from||!it.to){alert('请填写航司、出发和到达');return}if(eid){var x=U.flights.findIndex(function(f){return f.id===eid});if(x>=0)U.flights[x]=it}else U.flights.push(it);su();closeM();rF()}
+function rF(){var t=document.getElementById('ftb'),sm={todo:['待预订','todo'],progress:['比选中','prog'],done:['已出票','done']};if(!U.flights.length){t.innerHTML='<tr><td colspan="11"><div class="emp"><div class="ic">🛫</div><p>暂无航班</p></div></td></tr>';return}t.innerHTML=U.flights.map(function(f){var s=sm[f.status]||['?','todo'];return'<tr><td><b>'+s(f.airline)+'</b></td><td>'+s(f.flightNo||'-')+'</td><td>'+s(f.from)+'</td><td>'+s(f.to)+'</td><td>'+s(f.departDate||'-')+'</td><td>'+s(f.arriveDate||'-')+'</td><td>'+s(f.layover||'直飞')+'</td><td>'+(f.price?'¥'+Number(f.price).toLocaleString():'-')+'</td><td>'+s(f.baggage||'-')+'</td><td><span class="st '+s[1]+'">'+s[0]+'</span></td><td style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="openF('+JSON.stringify(f).replace(/"/g,'&quot;')+')">✏️</button> <button class="btn btn-o btn-s" style="color:var(--red)" onclick="di(\'flights\',\''+f.id+'\');rF()">🗑</button></td></tr>'}).join('')}
+function openH(d){d=d||{};document.getElementById('md').innerHTML='<h3>🏨 '+(d.id?'编辑':'添加')+'酒店</h3><div class="fr"><div class="fg"><label>酒店名称 *</label><input id="hn" value="'+s(d.name||'')+'" placeholder="东京万怡酒店"></div><div class="fg"><label>城市 *</label><input id="hc" value="'+s(d.city||'')+'" placeholder="东京"></div></div><div class="fr"><div class="fg"><label>入住日期</label><input type="date" id="hci" value="'+s(d.checkIn||'')+'"></div><div class="fg"><label>退房日期</label><input type="date" id="hco" value="'+s(d.checkOut||'')+'"></div></div><div class="fr"><div class="fg"><label>价格/晚(元)</label><input type="number" id="hp" value="'+s(d.price||'')+'" placeholder="850"></div><div class="fg"><label>评分</label><input id="hr" value="'+s(d.rating||'')+'" placeholder="4.5/5"></div></div><div class="fr"><div class="fg"><label>取消政策</label><input id="hca" value="'+s(d.cancellation||'')+'" placeholder="入住前24h免费取消"></div><div class="fg"><label>状态</label><select id="hs"><option value="todo" '+(d.status!=='done'&&d.status!=='progress'?'selected':'')+'>待预订</option><option value="progress" '+(d.status==='progress'?'selected':'')+'>比选中</option><option value="done" '+(d.status==='done'?'selected':'')+'>已预订</option></select></div></div><div class="fg"><label>备注</label><textarea id="hnn">'+s(d.notes||'')+'</textarea></div><div class="fa"><button class="btn btn-o btn-s" onclick="closeM()">取消</button><button class="btn btn-p btn-s" onclick="sH(\''+(d.id||'')+'\')">保存</button></div>';document.getElementById('ov').classList.add('on')}
+function sH(eid){var it={id:eid||gi(),name:gv('hn'),city:gv('hc'),checkIn:gv('hci'),checkOut:gv('hco'),price:gv('hp'),rating:gv('hr'),cancellation:gv('hca'),status:gv('hs'),notes:gv('hnn')};if(!it.name||!it.city){alert('请填写酒店名称和城市');return}if(eid){var x=U.hotels.findIndex(function(h){return h.id===eid});if(x>=0)U.hotels[x]=it}else U.hotels.push(it);su();closeM();rH()}
+function rH(){var t=document.getElementById('htb'),sm={todo:['待预订','todo'],progress:['比选中','prog'],done:['已预订','done']};if(!U.hotels.length){t.innerHTML='<tr><td colspan="10"><div class="emp"><div class="ic">🏨</div><p>暂无酒店</p></div></td></tr>';return}t.innerHTML=U.hotels.map(function(h){var s=sm[h.status]||['?','todo'];return'<tr><td><b>'+s(h.name)+'</b></td><td>'+s(h.city)+'</td><td>'+s(h.checkIn||'-')+'</td><td>'+s(h.checkOut||'-')+'</td><td>'+(h.price?'¥'+Number(h.price).toLocaleString():'-')+'</td><td>'+s(h.rating||'-')+'</td><td>'+s(h.cancellation||'-')+'</td><td><span class="st '+s[1]+'">'+s[0]+'</span></td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+s(h.notes||'')+'">'+s(h.notes||'-')+'</td><td style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="openH('+JSON.stringify(h).replace(/"/g,'&quot;')+')">✏️</button> <button class="btn btn-o btn-s" style="color:var(--red)" onclick="di(\'hotels\',\''+h.id+'\');rH()">🗑</button></td></tr>'}).join('')}
+function rTl(){var ev=[];for(var k in U.trips){var v=M[k];if(v&&(v.p==='free'||v.p==='voa'))ev.push({date:new Date().toISOString().slice(0,10),cat:'v',title:v.c+' '+v.f+' — 可直接前往',detail:v.pl})}U.flights.forEach(function(f){if(f.departDate)ev.push({date:f.departDate.split('T')[0]||f.departDate,cat:'f',title:'✈ '+f.from+' → '+f.to,detail:f.airline+' '+(f.flightNo||'')})});U.hotels.forEach(function(h){if(h.checkIn)ev.push({date:h.checkIn,cat:'h',title:'🏨 入住 '+h.name,detail:h.city});if(h.checkOut)ev.push({date:h.checkOut,cat:'h',title:'🏨 退房 '+h.name,detail:h.city})});ev.sort(function(a,b){return a.date.localeCompare(b.date)});var w=document.getElementById('tlW');if(!ev.length){w.innerHTML='<div class="emp"><div class="ic">📅</div><p>暂无行程数据</p></div>';return}w.innerHTML='<div class="tl">'+ev.map(function(e){return'<div class="tli '+e.cat+'"><div class="tld">📅 '+e.date+'</div><div class="tlc"><div class="t">'+s(e.title)+'</div><div class="d">'+s(e.detail)+'</div></div></div>'}).join('')+'</div>'}
+function s(t){if(!t)return'';return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function gv(id){var el=document.getElementById(id);return el?el.value:''}
+function closeM(){document.getElementById('ov').classList.remove('on')}
+function gi(){return'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)}
+function di(key,id){if(!confirm('确定删除？'))return;U[key]=U[key].filter(function(v){return v.id!==id});su()}
+function exp(){var b=new Blob([JSON.stringify(U,null,2)],{type:'application/json'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download='travel-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u)}
+function imp(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!confirm('导入将覆盖当前数据，确定？'))return;U=d;su();rt();rF();rH();rTl();alert('导入成功！')}catch(ex){alert('解析失败：'+ex.message)}};r.readAsText(f);e.target.value=''}
+function st(p){document.querySelectorAll('.tabs button').forEach(function(b){b.classList.remove('on')});document.querySelectorAll('.panel').forEach(function(pp){pp.classList.remove('on')});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');var pn=document.getElementById('p-'+p);if(pn)pn.classList.add('on');if(p==='trips')rt();if(p==='flights')rF();if(p==='hotels')rH();if(p==='timeline')rTl()}
+document.getElementById('tabs').addEventListener('click',function(e){var btn=e.target.closest('button');if(!btn)return;var p=btn.getAttribute('data-p');if(p)st(p)});
+doSearch();
+</script>
+</body>
+</html>
